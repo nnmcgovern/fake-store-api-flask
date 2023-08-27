@@ -46,7 +46,7 @@ def index():
 
 
 @app.route('/products', methods=['GET', 'POST'])
-@app.route('/products/<id>')
+@app.route('/products/<id>', methods=['GET', 'PUT', 'DELETE'])
 def products(id=None):
     if request.method == 'GET':
         if id:
@@ -64,6 +64,10 @@ def products(id=None):
         new_product = dict_to_model(Product, request.get_json())
         new_product.save()
         return jsonify(model_to_dict(new_product))
+
+    elif request.method == 'PUT':
+        Product.update(request.get_json()).where(Product.id == id).execute()
+        return jsonify(model_to_dict(Product.get(Product.id == id)))
 
 
 app.run(port=3030, debug=True)
