@@ -45,19 +45,25 @@ def index():
     return jsonify({'message': 'This is the API root!'})
 
 
-@app.route('/products')
+@app.route('/products', methods=['GET', 'POST'])
 @app.route('/products/<id>')
 def products(id=None):
-    if id:
-        return jsonify(model_to_dict(Product.get(Product.id == id)))
+    if request.method == 'GET':
+        if id:
+            return jsonify(model_to_dict(Product.get(Product.id == id)))
 
-    else:
-        products = []
+        else:
+            products = []
 
-        for product in Product.select():
-            products.append(model_to_dict(product))
+            for product in Product.select():
+                products.append(model_to_dict(product))
 
-        return jsonify(products)
+            return jsonify(products)
+
+    elif request.method == 'POST':
+        new_product = dict_to_model(Product, request.get_json())
+        new_product.save()
+        return jsonify(model_to_dict(new_product))
 
 
 app.run(port=3030, debug=True)
