@@ -50,7 +50,11 @@ def index():
 def products(id=None):
     if request.method == 'GET':
         if id:
-            return jsonify(model_to_dict(Product.get(Product.id == id)))
+            try:
+                return jsonify(model_to_dict(Product.get(Product.id == id)))
+
+            except DoesNotExist:
+                return jsonify({'message': f'Product with id {id} not found'})
 
         else:
             products = []
@@ -71,7 +75,7 @@ def products(id=None):
 
     elif request.method == 'DELETE':
         Product.delete().where(Product.id == id).execute()
-        return jsonify({'deleted': True})
+        return jsonify({'message': f'Product with id {id} deleted'})
 
 
 app.run(port=3030, debug=True)
