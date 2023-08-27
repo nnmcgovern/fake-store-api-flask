@@ -69,5 +69,9 @@ def products(id=None):
         Product.update(request.get_json()).where(Product.id == id).execute()
         return jsonify(model_to_dict(Product.get(Product.id == id)))
 
+    elif request.method == 'DELETE':
+        Product.delete().where(Product.id == id).execute()
+        return jsonify({'deleted': True})
+
 
 app.run(port=3030, debug=True)
