@@ -78,8 +78,14 @@ def products(id=None):
         return jsonify(model_to_dict(Product.get(Product.id == id)))
 
     elif request.method == 'DELETE':
-        Product.delete().where(Product.id == id).execute()
-        return jsonify({'status': f'Success: Product with id {id} deleted'})
+        try:
+            # will throw error if product doesn't exist
+            Product.get(Product.id == id)
+            Product.delete().where(Product.id == id).execute()
+            return jsonify({'status': f'Success: Product with id {id} deleted'})
+
+        except DoesNotExist:
+            return jsonify({'status': f'Error: Product with id {id} not found'})
 
 
 app.run(port=3030, debug=True)
