@@ -14,11 +14,11 @@ class BaseModel(Model):
 
 class Product(BaseModel):
     title = CharField()
-    price = DecimalField()
+    price = FloatField()
     description = CharField(max_length=1000)
     category = CharField()
     image = CharField()
-    rating = DecimalField()
+    rating = FloatField()
     rate_count = IntegerField()
 
 
@@ -38,6 +38,26 @@ for product in products:
     ).save()
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return jsonify({'message': 'This is the API root!'})
+
+
+@app.route('/products')
+@app.route('/products/<id>')
+def products(id=None):
+    if id:
+        return jsonify(model_to_dict(Product.get(Product.id == id)))
+
+    else:
+        products = []
+
+        for product in Product.select():
+            products.append(model_to_dict(product))
+
+        return jsonify(products)
 
 
 app.run(port=3030, debug=True)
