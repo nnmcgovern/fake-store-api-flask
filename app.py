@@ -54,7 +54,7 @@ def products(id=None):
                 return jsonify(model_to_dict(Product.get(Product.id == id)))
 
             except DoesNotExist:
-                return jsonify({'message': f'Product with id {id} not found'})
+                return jsonify({'status': f'Error: Product with id {id} not found'})
 
         else:
             products = []
@@ -65,9 +65,13 @@ def products(id=None):
             return jsonify(products)
 
     elif request.method == 'POST':
-        new_product = dict_to_model(Product, request.get_json())
-        new_product.save()
-        return jsonify(model_to_dict(new_product))
+        try:
+            new_product = dict_to_model(Product, request.get_json())
+            new_product.save()
+            return jsonify(model_to_dict(new_product))
+
+        except IntegrityError:
+            return jsonify({'status': 'Error: Invalid JSON body'})
 
     elif request.method == 'PUT':
         Product.update(request.get_json()).where(Product.id == id).execute()
@@ -75,7 +79,7 @@ def products(id=None):
 
     elif request.method == 'DELETE':
         Product.delete().where(Product.id == id).execute()
-        return jsonify({'message': f'Product with id {id} deleted'})
+        return jsonify({'status': f'Success: Product with id {id} deleted'})
 
 
 app.run(port=3030, debug=True)
